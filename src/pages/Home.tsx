@@ -105,8 +105,8 @@ export default function HomePage() {
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6 font-mono text-[10px] uppercase tracking-[0.25em]">
-            <a href="#lignes" className="text-white/70 hover:text-[#ffd60a] link-underline">lignes</a>
-            <a href="#comment" className="text-white/70 hover:text-[#ffd60a] link-underline">comment</a>
+            <a href="#lignes" className="text-white/70 hover:text-[#ffd60a] link-underline">bus</a>
+            <a href="#comment" className="text-white/70 hover:text-[#ffd60a] link-underline">Utilisation</a>
             <a href="#rejoindre" className="text-white/70 hover:text-[#ffd60a] link-underline">chauffeurs</a>
           </nav>
           <div className="flex items-center gap-2">
