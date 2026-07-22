@@ -30,9 +30,8 @@ function ClientClock() {
     return () => clearInterval(id);
   }, []);
   return (
-    <span className="font-mono tabular-nums text-slate-600 whitespace-nowrap">
-      <span className="sm:hidden text-[11px]">{t.split(" ")[1]}</span>
-      <span className="hidden sm:inline text-xs">{t}</span>
+    <span className="font-mono tabular-nums text-slate-600 whitespace-nowrap text-[10px] sm:text-xs">
+      {t}
     </span>
   );
 }
@@ -79,7 +78,7 @@ function ClientShell() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm border-b border-slate-200">
+      <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 pb-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
           <Link href="/" className="flex items-center gap-2 min-w-0">
             <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -91,9 +90,9 @@ function ClientShell() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-2 min-w-0 justify-center">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 min-w-0">
             <ClientClock />
-            <div className="hidden sm:flex flex-1 min-w-0">
+            <div className="flex w-full sm:flex-1 min-w-0">
               <Marquee text={marqueeText} style={marqueeStyle} />
             </div>
           </div>
@@ -108,7 +107,7 @@ function ClientShell() {
         </div>
       </header>
 
-      <main className="pt-[calc(4rem_+_env(safe-area-inset-top))]">
+      <main className="pt-3">
         <Outlet />
       </main>
 
