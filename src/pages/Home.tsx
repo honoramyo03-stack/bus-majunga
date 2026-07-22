@@ -105,8 +105,8 @@ export default function HomePage() {
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6 font-mono text-[10px] uppercase tracking-[0.25em]">
-            <a href="#lignes" className="text-white/70 hover:text-[#ffd60a] link-underline">bus</a>
-            <a href="#comment" className="text-white/70 hover:text-[#ffd60a] link-underline">Utilisation</a>
+            <a href="#lignes" className="text-white/70 hover:text-[#ffd60a] link-underline">lignes</a>
+            <a href="#comment" className="text-white/70 hover:text-[#ffd60a] link-underline">comment</a>
             <a href="#rejoindre" className="text-white/70 hover:text-[#ffd60a] link-underline">chauffeurs</a>
           </nav>
           <div className="flex items-center gap-2">
@@ -295,7 +295,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-4 text-sm lg:text-[15px] leading-relaxed text-white/70 max-w-md">
               Créez votre compte en trois étapes. Réservations, trajets spéciaux, position en direct,
-              tarifs maîtrisés.
+              tarifs maîtrisés. Validation par l'administration.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/driver/register" className="inline-flex items-center gap-2 bg-[#06b6a4] text-[#0b2545] px-5 py-3 hover:bg-[#ffd60a] transition-colors">

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "@/lib/router";
 import { Link } from "@/lib/router";
 import {
@@ -21,6 +21,10 @@ import {
   AlertCircle,
   Clock,
   Zap,
+  X,
+  Send,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useFirebaseList, useFirebaseData, firebaseOps } from "@/lib/firebase-hooks";
@@ -52,6 +56,68 @@ export default function DriverDashboard() {
   const myReviews = reviews.filter((r) => r.driverId === user?.uid);
   const unreadNotifs = notifications.filter((n) => !n.isRead);
   const unreadMessages = myMessages.filter((m) => m.toId === user?.uid && !m.isRead);
+  const received = myMessages.filter((m) => m.toId === user?.uid && m.fromId === "admin");
+  const sent = myMessages.filter((m) => m.fromId === user?.uid);
+  const [msgTab, setMsgTab] = useState<"received" | "sent">("received");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+  const seenNotifs = useRef<Set<string>>(new Set());
+  const firstNotifs = useRef(true);
+
+  // Notifications en pop-up : on ignore le 1er snapshot (pas de spam au login),
+  // puis chaque nouvelle notif non lue déclenche un pop-up cliquable menant à
+  // l'onglet cible (temps réel).
+  useEffect(() => {
+    if (firstNotifs.current) {
+      notifications.forEach((n) => seenNotifs.current.add(n.id));
+      firstNotifs.current = false;
+      return;
+    }
+    notifications.forEach((n) => {
+      if (seenNotifs.current.has(n.id)) return;
+      seenNotifs.current.add(n.id);
+      if (n.isRead) return;
+      const target = (n as AppNotification & { target?: { tab?: string } }).target;
+      toast.custom(
+        (t) => (
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              markNotificationRead(n.id);
+              if (
+                target?.tab === "home" ||
+                target?.tab === "reservations" ||
+                target?.tab === "messages" ||
+                target?.tab === "settings"
+              ) {
+                setActiveTab(target.tab as typeof activeTab);
+              }
+            }}
+            className={`w-72 max-w-[88vw] text-left bg-slate-800 border rounded-xl p-3 shadow-2xl animate-slide-up ${
+              n.type === "alert"
+                ? "border-red-500/50"
+                : (n.type as string) === "warning"
+                ? "border-yellow-500/50"
+                : "border-blue-500/50"
+            }`}
+          >
+            <div className="flex items-start gap-2">
+              <Bell className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#ffd60a]" />
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-semibold leading-tight">{n.title}</p>
+                <p className="text-slate-300 text-xs mt-0.5">{n.body}</p>
+                <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">toucher pour ouvrir</p>
+              </div>
+            </div>
+          </button>
+        ),
+        { duration: 6000 }
+      );
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notifications]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -274,7 +340,7 @@ export default function DriverDashboard() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <button
-                onClick={() => setActiveTab("messages")}
+                onClick={() => setShowNotifPanel((v) => !v)}
                 className="w-9 h-9 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition-colors"
               >
                 <Bell className="w-4 h-4" />
@@ -294,6 +360,65 @@ export default function DriverDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Panneau notifications (historique des pop-up) */}
+      {showNotifPanel && (
+        <div className="fixed inset-0 z-40" onClick={() => setShowNotifPanel(false)}>
+          <div
+            className="absolute right-3 left-3 top-[calc(3.75rem_+_env(safe-area-inset-top))] sm:left-auto sm:w-80 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+              <span className="text-white font-semibold text-sm flex items-center gap-2">
+                <Bell className="w-4 h-4 text-[#ffd60a]" /> Notifications
+              </span>
+              <button
+                onClick={() =>
+                  notifications.filter((n) => !n.isRead).forEach((n) => markNotificationRead(n.id))
+                }
+                className="text-[10px] uppercase tracking-wider text-slate-400 hover:text-white"
+              >
+                Tout lire
+              </button>
+            </div>
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="text-slate-500 text-sm text-center py-8">Aucune notification</p>
+              ) : (
+                notifications
+                  .sort((a, b) => b.createdAt - a.createdAt)
+                  .map((n) => (
+                    <button
+                      key={n.id}
+                      onClick={() => {
+                        setShowNotifPanel(false);
+                        markNotificationRead(n.id);
+                        const t = (n as AppNotification & { target?: { tab?: string } }).target;
+                        if (
+                          t?.tab === "home" ||
+                          t?.tab === "reservations" ||
+                          t?.tab === "messages" ||
+                          t?.tab === "settings"
+                        ) {
+                          setActiveTab(t.tab as typeof activeTab);
+                        }
+                      }}
+                      className={`w-full text-left px-4 py-3 border-b border-slate-700/60 hover:bg-slate-700/50 transition-colors ${
+                        !n.isRead ? "bg-blue-500/5" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {!n.isRead && <span className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0" />}
+                        <p className="text-white text-sm font-medium truncate">{n.title}</p>
+                      </div>
+                      <p className="text-slate-400 text-xs mt-0.5">{n.body}</p>
+                    </button>
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="max-w-xl mx-auto px-4 py-5">
@@ -601,109 +726,181 @@ export default function DriverDashboard() {
               )}
             </h2>
 
-            {/* Notifications (cliquables → onglet cible) */}
-            {notifications.length > 0 && (
-              <div className="mb-5">
-                <h3 className="text-slate-400 text-sm mb-2 flex items-center gap-1">
-                  <Bell className="w-3 h-3" />
-                  Notifications
-                </h3>
-                {notifications
-                  .sort((a, b) => b.createdAt - a.createdAt)
-                  .map((notif) => (
-                    <div
-                      key={notif.id}
-                      onClick={() => {
-                        markNotificationRead(notif.id);
-                        const t = (notif as AppNotification & { target?: { tab?: string } }).target;
-                        if (
-                          t?.tab === "home" ||
-                          t?.tab === "reservations" ||
-                          t?.tab === "messages" ||
-                          t?.tab === "settings"
-                        ) {
-                          setActiveTab(t.tab as typeof activeTab);
-                        }
-                      }}
-                      className={`bg-slate-800 border rounded-xl p-3 mb-2 cursor-pointer ${
-                        !notif.isRead ? "border-blue-500/40" : "border-slate-700"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {!notif.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                        )}
-                        <p className="text-white text-sm font-medium">{notif.title}</p>
-                      </div>
-                      <p className="text-slate-400 text-xs mt-1">{notif.body}</p>
-                    </div>
-                  ))}
-              </div>
-            )}
+            {/* Onglet messages = messages uniquement (reçus / envoyés / édition) */}
+            <div className="flex bg-slate-800 rounded-xl p-1">
+              <button
+                onClick={() => setMsgTab("received")}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-1 ${
+                  msgTab === "received" ? "bg-[#06b6a4] text-[#0b2545]" : "text-slate-400"
+                }`}
+              >
+                Reçus
+                {received.filter((m) => !m.isRead).length > 0 && (
+                  <span className="text-[10px] bg-red-500 text-white px-1.5 rounded-full">
+                    {received.filter((m) => !m.isRead).length}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setMsgTab("sent")}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  msgTab === "sent" ? "bg-[#06b6a4] text-[#0b2545]" : "text-slate-400"
+                }`}
+              >
+                Envoyés
+              </button>
+            </div>
 
-            {/* Conversation avec l'administration (temps réel, deux sens) */}
-            <h3 className="text-slate-400 text-sm mb-2 flex items-center gap-1">
-              <MessageSquare className="w-3 h-3" />
-              Conversation avec l'administration
-            </h3>
-            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-3 space-y-2 max-h-80 overflow-y-auto">
-              {myMessages.length === 0 ? (
-                <p className="text-slate-500 text-sm text-center py-6">Aucun message pour l'instant.</p>
+            {msgTab === "received" ? (
+              received.length === 0 ? (
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center">
+                  <MessageSquare className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                  <p className="text-slate-500 text-sm">Aucun message reçu</p>
+                </div>
               ) : (
-                myMessages
-                  .sort((a, b) => a.createdAt - b.createdAt)
-                  .map((msg) => {
-                    const fromMe = msg.fromId === user?.uid;
-                    return (
-                      <div key={msg.id} className={`flex ${fromMe ? "justify-end" : "justify-start"}`}>
-                        <div
-                          className={`max-w-[80%] rounded-xl px-3 py-2 ${
-                            fromMe ? "bg-[#06b6a4] text-[#0b2545]" : "bg-slate-700 text-white"
-                          }`}
-                        >
-                          <div
-                            className={`text-[10px] uppercase tracking-wider mb-0.5 ${
-                              fromMe ? "text-[#0b2545]/70" : "text-slate-400"
-                            }`}
-                          >
-                            {fromMe ? "Vous" : msg.fromName}
+                <div className="space-y-2">
+                  {received
+                    .sort((a, b) => b.createdAt - a.createdAt)
+                    .map((m) => (
+                      <div
+                        key={m.id}
+                        className={`bg-slate-800 border rounded-xl p-3 ${
+                          !m.isRead ? "border-blue-500/40" : "border-slate-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            {!m.isRead && <span className="w-2 h-2 bg-blue-400 rounded-full" />}
+                            <span className="text-slate-400 text-xs">{m.fromName}</span>
                           </div>
-                          <p className="text-sm leading-snug">{msg.content}</p>
-                          <div
-                            className={`text-[10px] mt-1 ${
-                              fromMe ? "text-[#0b2545]/60" : "text-slate-400"
-                            }`}
-                          >
-                            {new Date(msg.createdAt).toLocaleString("fr-FR", {
+                          <span className="text-slate-500 text-[10px]">
+                            {new Date(m.createdAt).toLocaleString("fr-FR", {
                               day: "2-digit",
                               month: "2-digit",
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
+                          </span>
+                        </div>
+                        <p className="text-white text-sm">{m.content}</p>
+                        <button
+                          onClick={() => {
+                            setMsgTab("sent");
+                            setTimeout(() => composerRef.current?.focus(), 60);
+                          }}
+                          className="mt-2 text-[11px] text-[#06b6a4] font-medium hover:underline"
+                        >
+                          Répondre →
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              )
+            ) : sent.length === 0 ? (
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center">
+                <MessageSquare className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                <p className="text-slate-500 text-sm">Aucun message envoyé</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {sent
+                  .sort((a, b) => b.createdAt - a.createdAt)
+                  .map((m) => (
+                    <div key={m.id} className="bg-slate-800 border border-slate-700 rounded-xl p-3">
+                      {editingId === m.id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={2}
+                            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#06b6a4] resize-none"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="px-3 py-1.5 text-xs text-slate-400 border border-slate-600 rounded-lg"
+                            >
+                              Annuler
+                            </button>
+                            <button
+                              onClick={async () => {
+                                const v = editText.trim();
+                                if (!v) return;
+                                await firebaseOps.update(`messages/${m.id}`, { content: v });
+                                setEditingId(null);
+                                toast.success("Message modifié");
+                              }}
+                              className="px-3 py-1.5 text-xs bg-[#06b6a4] text-[#0b2545] rounded-lg font-medium"
+                            >
+                              Enregistrer
+                            </button>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
+                      ) : (
+                        <>
+                          <p className="text-white text-sm">{m.content}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-slate-500 text-[10px]">
+                              {new Date(m.createdAt).toLocaleString("fr-FR", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => {
+                                  setEditingId(m.id);
+                                  setEditText(m.content);
+                                }}
+                                className="p-1.5 text-blue-300 hover:bg-blue-500/10 rounded-lg"
+                                title="Modifier"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (!confirm("Supprimer ce message ?")) return;
+                                  await firebaseOps.remove(`messages/${m.id}`);
+                                  toast.success("Message supprimé");
+                                }}
+                                className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg"
+                                title="Supprimer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
 
-            {/* Réponse du chauffeur */}
-            <div className="flex gap-2">
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                rows={2}
-                placeholder="Répondre à l'administration…"
-                className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#06b6a4] resize-none"
-              />
-              <button
-                onClick={sendReply}
-                disabled={!replyText.trim()}
-                className="self-stretch px-4 bg-[#06b6a4] text-[#0b2545] font-bold rounded-xl hover:bg-[#ffd60a] transition-colors disabled:opacity-40"
-              >
-                Envoyer
-              </button>
+            {/* Composer vers l'administration */}
+            <div className="pt-1">
+              <p className="text-slate-400 text-xs mb-1.5 flex items-center gap-1">
+                <Send className="w-3 h-3" /> Écrire à l'administration
+              </p>
+              <div className="flex gap-2">
+                <textarea
+                  ref={composerRef}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  rows={2}
+                  placeholder="Votre message…"
+                  className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#06b6a4] resize-none"
+                />
+                <button
+                  onClick={sendReply}
+                  disabled={!replyText.trim()}
+                  className="self-stretch px-4 bg-[#06b6a4] text-[#0b2545] font-bold rounded-xl hover:bg-[#ffd60a] transition-colors disabled:opacity-40"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -788,7 +985,7 @@ export default function DriverDashboard() {
           {[
             { key: "home", label: "Accueil", icon: MapPin },
             { key: "reservations", label: "Réservations", icon: Calendar },
-            { key: "messages", label: "Messages", icon: MessageSquare, badge: unreadNotifs.length + unreadMessages.length },
+            { key: "messages", label: "Messages", icon: MessageSquare, badge: unreadMessages.length },
             { key: "settings", label: "Paramètres", icon: Settings },
           ].map((item) => (
             <button

@@ -65,6 +65,7 @@ createRoot(document.getElementById("root")!).render(
 
           <Toaster
             position="top-right"
+            containerStyle={{ top: "calc(4.75rem + env(safe-area-inset-top))", right: "1rem" }}
             toastOptions={{
               duration: 4200,
               style: {
