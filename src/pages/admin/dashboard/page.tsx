@@ -34,6 +34,7 @@ import StarRating from "@/components/StarRating";
 import ReviewThread from "@/components/ReviewThread";
 import ImageUpload from "@/components/ImageUpload";
 import SpecialTiersEditor from "@/components/SpecialTiersEditor";
+import MarqueeStudio from "@/components/MarqueeStudio";
 import { byLine } from "@/lib/line";
 import toast from "react-hot-toast";
 
@@ -525,6 +526,26 @@ export default function AdminDashboard() {
                 Le prix d'une réservation de bus régulier = tarif de la ligne (défini dans « Lignes / Trajets »).
               </p>
             </div>
+
+            {/* Phrase défilante de l'entête client (studio) */}
+            <MarqueeStudio
+              key={`mqs-${JSON.stringify({
+                t: (settings as any)?.headerMarquee ?? "",
+                c: (settings as any)?.headerMarqueeColor ?? "",
+                bg: (settings as any)?.headerMarqueeBg ?? "",
+                sp: (settings as any)?.headerMarqueeSpeed ?? "",
+                sz: (settings as any)?.headerMarqueeSize ?? "",
+                w: (settings as any)?.headerMarqueeWeight ?? "",
+              })}`}
+              initial={{
+                text: (settings as any)?.headerMarquee ?? "",
+                color: (settings as any)?.headerMarqueeColor ?? "",
+                bg: (settings as any)?.headerMarqueeBg ?? "",
+                speed: String((settings as any)?.headerMarqueeSpeed ?? ""),
+                size: String((settings as any)?.headerMarqueeSize ?? ""),
+                weight: String((settings as any)?.headerMarqueeWeight ?? ""),
+              }}
+            />
 
             {/* Online drivers map preview */}
             <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 mb-6">
