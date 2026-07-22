@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "transport-mahajanga",
+  "private_key_id": "acaf89e51f0e9f85b39742a960a79a450fcf657c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQClOXSuu9yNlMek\nVzn62Zo7pLGa+BYAPbVE/ZnzK38mvSSvNpTPUncEiB5eLtZdxf2/QHs+R1z5WtL9\n1o47lA1fEY07EpHHLHtbAVjqxUCrWdAurunNXAMRzuavqVVAIC2TuEznicvt6ojL\n2i2l1mrZkBR1pFvGOXXN+WfWXeOUwldIUdkfWqFkNGHwgeEn0szkYc2ko6n8OQLz\n91APy7ZwnwAPIoFPxncRnjqzJXAbueEIuGrgT2BF46PG77ni9zB5OhIKZ5O/Jk54\nlno2p3EhJfnDEzYwKq5KvEWqBmVpZiI6UxXo+qhdUz4HC6ewQ7NVHg4+uVPEAz0A\nwQXtrVlJAgMBAAECggEAA3EhOGOi+lMTXp3PkCV41E2/wmvxH2Ops0x6KMnq7e5q\nRXkkW/ZKku5X/ZvJrO3rNZD9EETRz8L/2rhdwal5ptWZhNXD8it/zVtHlCp0SK2I\nC/TqW3QTf0s5XIbxRvL0qBtihL9G34evflmm8km3c51QA8xe+g/n35jWvC08CLUE\nI+NyL5wpXGf5Kd3cg3kZsuVFhxcsXh33Q5cnuWj7k/TR1LnURVrRxcR5hPltI4Ep\nCF24Pr0hn0zbVjYJytl2+EVmc+MJHJBu7wE/r6j9JA/gyj6hCsuotBVcDU3lm39I\ntQnkFuKB7EFHdpsJpyTtcIeJFEE9p7iF8s7w2A+uhQKBgQDVUNxJTVRroq9aPNay\nWRTkrfiLKvITdUAy5ipzm/it04AYKCjT3+tk09a42T5L2MkBwBPxk5tzlNMjcABm\ndwBJQfYD1hXOleQUyr/10VqwNkfUaxhmrWA93eH1OOCE+J+lmipOcmet1LzgV5EI\nDUa7rpEWFpJDmxeItfMNsq9FxQKBgQDGSRqy0+GOk6hE6E7PHTGpxaDrBvIli0Te\n81RTdo0kGHm/iCiCUlpGHmsmouzi7T0usJ373LwbfRSx1HNJUTIk0OiyCRmoXATc\n01pZSP/pRQ6lNBYiK7NsHSYLIDMQ4p16LKJDN0VWjWy+joYPaAAvrX5Gt3HxpkkZ\noHiflYJBtQKBgAPPvQ/mPNLrhjyTh7aKFvB7F0zNSKQGXU5LhIiqScg5VjmYRhp7\nDsavbk/BOfa6+eR5HSIc5BMtnpQshSVPjQbCEfZBlgQp83hXoxRuWDN71M671yTG\nhki0tTvfd0uI8blQxt699pJJkdJkXigJrLDfzqHZZ2Wj2MjNj3k4Lx+NAoGALOlJ\n/s82+5A+QL1NfGPkZ8u3kwRTvGU7CDSdGPp1JYPVr6grZLk6cT9ajbnBZfTOMtEW\nN4HbqW4/TbgNFMIrVWNsEUc2ZIfTIiFNCYQbUr6tfoW5rauwTACeKU71whFSEeYi\nKo9OSThnNRIbE0o/II1vWJ0cVduQGxnZuGuowTECgYAVP6BuSxyBgRSCHL7t1x67\nI3DfcucCxvqMPo2JnPOIAj5oGw1LGKJOvt65EONyfJnb7/gErSbFYnyune+GA8Cf\nXEX9fzl0FuiAzqAOvsK6Hi/+4FtY9n+LxnWNiCI6jmNV8tyvZJZI3XEOahdekLh6\nNxH8WZf57nQw4bc2tfAIbQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@transport-mahajanga.iam.gserviceaccount.com",
+  "client_id": "114544292758791977428",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40transport-mahajanga.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

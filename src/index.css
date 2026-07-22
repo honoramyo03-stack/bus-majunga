@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/* =========================================================
+   TransMahajanga — Design tokens
+   Palette: marine #0b2545 · paper #f4f6f8 · coral #ff3b30
+            sun #ffd60a · teal #06b6a4 · steel #457b9d
+   Display: Unbounded (geometric, heavy)
+   Body:    Bricolage Grotesque
+   Mono:    JetBrains Mono
+   ========================================================= */
+
+:root {
+  /* Typographie — chargée via <link> Google Fonts dans le layout (pas de next/font) */
+  --font-display: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --marine: #0b2545;
+  --marine-2: #13315c;
+  --marine-3: #1b4079;
+  --paper: #f4f6f8;
+  --paper-2: #e6ebf1;
+  --ink: #0b2545;
+  --coral: #ff3b30;
+  --coral-dark: #c92a22;
+  --coral-tint: #ffe5e3;
+  --sun: #ffd60a;
+  --sun-dark: #b89700;
+  --teal: #06b6a4;
+  --teal-dark: #048a7c;
+  --teal-tint: #d1f1ec;
+  --steel: #457b9d;
+  --muted: #5a6b82;
+  --hairline: #dfe4ea;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+}
+
+.font-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01";
+  letter-spacing: -0.02em;
+}
+.font-body {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-feature-settings: "tnum";
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--paper-2); }
+::-webkit-scrollbar-thumb { background: var(--marine); border: 2px solid var(--paper-2); }
+::-webkit-scrollbar-thumb:hover { background: var(--coral); }
+
+/* ============ Animations ============ */
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+  50%      { transform: scale(1.2); box-shadow: 0 0 0 6px transparent; opacity: 0.7; }
+}
+.live-dot { animation: pulseDot 1.6s ease-in-out infinite; }
+
+@keyframes routeDash {
+  to { stroke-dashoffset: -400; }
+}
+.route-dash {
+  stroke-dasharray: 2 10;
+  stroke-linecap: round;
+  animation: routeDash 6s linear infinite;
+}
+
+@keyframes routeFlow {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes tickerIn {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.ticker-in { animation: tickerIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes formRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.form-rise { animation: formRise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { animation: reveal 0.4s ease-out both; }
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.scanline { animation: scan 4s linear infinite; }
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 40s linear infinite; }
+
+/* Underline qui s'étend depuis la gauche */
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -2px;
+  width: 100%; height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.link-underline:hover::after { transform: scaleX(1); }
+
+/* Pulse générique "en ligne" (compat pages existantes) */
+@keyframes pulse-slow { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+.status-online { animation: pulse-slow 2s infinite; }
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slide-up 0.4s ease-out forwards; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+@keyframes bounce-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-bounce-in { animation: bounce-in 0.4s ease-out forwards; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: spin 1s linear infinite; }
+
+/* ============ Leaflet ============ */
+.leaflet-container { width: 100%; height: 100%; border-radius: inherit; font-family: var(--font-body), sans-serif; }
+.leaflet-popup-content-wrapper {
+  border-radius: 2px !important;
+  box-shadow: 0 12px 32px rgba(11,37,69,0.22) !important;
+}
+
+/* ============ Legacy helpers (compat) ============ */
+.glass { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+.gradient-text { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.input-focus { transition: all 0.2s ease; }
+.input-focus:focus { box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+.star-filled { color: #f59e0b; }
+.star-empty { color: #d1d5db; }
+.notification-badge { animation: bounce-in 0.3s ease-out; }
+.bottom-nav-item.active { color: #3b82f6; }
+
+/* ============ Ambient grid background ============ */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(11,37,69,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11,37,69,0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.bg-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Halftone dots */
+.bg-dots {
+  background-image: radial-gradient(rgba(11,37,69,0.12) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
