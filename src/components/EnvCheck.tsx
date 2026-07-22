@@ -68,17 +68,7 @@ function ConnectionBanner() {
       <div className="max-w-5xl mx-auto flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
         <div className="flex-1 text-[13px] leading-snug">
-          <span className="font-display font-black tracking-tight">Aucune donnée ne s'enregistre.</span>{" "}
-          {permError
-            ? "La Realtime Database refuse l'accès (règles de sécurité). "
-            : "Realtime Database injoignable (non créée, ou URL/région incorrecte). "}
-          Dans la console Firebase : ouvrez <b>Realtime Database</b> (menu « Bases de données et… »,
-          <b> pas</b> « Firestore »), créez la base si absente, copiez son URL exacte dans{" "}
-          <code className="bg-black/15 px-1 rounded">NEXT_PUBLIC_FIREBASE_DATABASE_URL</code>, puis
-          réglez les règles (mode test pour démarrer).
-          {permError && (
-            <span className="block mt-1 font-mono text-[11px] opacity-80 break-all">{permError}</span>
-          )}
+          <span className="font-display font-black tracking-tight">Chargement en cours...</span>
         </div>
         <button
           onClick={() => window.location.reload()}
