@@ -33,6 +33,7 @@ import StarRating from "@/components/StarRating";
 import MapComponent from "@/components/MapComponent";
 import ReviewThread from "@/components/ReviewThread";
 import ReservationThread from "@/components/ReservationThread";
+import HeaderCenter from "@/components/HeaderCenter";
 import toast from "react-hot-toast";
 
 export default function DriverDashboard() {
@@ -315,21 +316,21 @@ export default function DriverDashboard() {
     <div className="min-h-screen bg-slate-900 pb-20">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-slate-800 border-b border-slate-700 px-4 pb-4 pt-[calc(1rem_+_env(safe-area-inset-top))]">
-        <div className="flex items-center justify-between max-w-xl mx-auto">
-          <div className="flex items-center gap-3">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3 max-w-xl mx-auto">
+          <div className="flex items-center gap-3 min-w-0">
             {driver?.imageUrl ? (
               <img
                 src={driver.imageUrl}
                 alt={driver.fullName}
-                className="w-11 h-11 rounded-xl object-cover"
+                className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
               />
             ) : (
-              <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold">
+              <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold flex-shrink-0">
                 {driver?.fullName?.charAt(0) || "?"}
               </div>
             )}
-            <div>
-              <p className="text-white font-semibold text-sm">{driver?.fullName || "Chauffeur"}</p>
+            <div className="hidden sm:block min-w-0">
+              <p className="text-white font-semibold text-sm truncate">{driver?.fullName || "Chauffeur"}</p>
               <div className="flex items-center gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full ${driverStatusColor}`}>
                   {driverStatusLabel}
@@ -337,7 +338,10 @@ export default function DriverDashboard() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          <HeaderCenter tone="dark" />
+
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
               <button
                 onClick={() => setShowNotifPanel((v) => !v)}

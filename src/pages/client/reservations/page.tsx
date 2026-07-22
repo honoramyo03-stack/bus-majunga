@@ -19,17 +19,37 @@ const statusMeta: Record<string, { label: string; pill: string; bar: string }> =
 export default function ReservationsPage() {
   const [clientPhone, setClientPhone] = useState("");
   const [searched, setSearched] = useState("");
+  const [cancelId, setCancelId] = useState<string | null>(null);
+  const [cancelName, setCancelName] = useState("");
   const { data: reservations } = useFirebaseList<Reservation>("reservations");
   const { data: drivers } = useFirebaseList<Driver>("drivers");
   const getDriver = (id: string) => drivers.find((d) => d.id === id);
 
   const mine = reservations.filter((r) => r.clientPhone === searched);
 
-  const handleCancel = async (id: string) => {
-    if (!confirm("Annuler cette réservation ?")) return;
+  // Annulation protégée : le client doit resaisir le nom exact de la réservation.
+  const norm = (s: string) =>
+    (s || "").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const openCancel = (id: string) => {
+    setCancelId(id);
+    setCancelName("");
+  };
+  const confirmCancel = async () => {
+    if (!cancelId) return;
+    const res = reservations.find((r) => r.id === cancelId);
+    if (!res) {
+      setCancelId(null);
+      return;
+    }
+    if (norm(cancelName) !== norm(res.clientName)) {
+      toast.error("Le nom ne correspond pas à celui de la réservation.");
+      return;
+    }
     try {
-      await firebaseOps.update(`reservations/${id}`, { status: "cancelled" });
+      await firebaseOps.update(`reservations/${cancelId}`, { status: "cancelled" });
       toast.success("Réservation annulée");
+      setCancelId(null);
+      setCancelName("");
     } catch {
       toast.error("Erreur lors de l'annulation");
     }
@@ -154,7 +174,7 @@ export default function ReservationsPage() {
                     <span className="font-semibold text-[#048a7c] tabular-nums">{res.totalPrice?.toLocaleString()} Ar</span>
                   </div>
                   {res.status === "pending" && (
-                    <button onClick={() => handleCancel(res.id)} className="text-xs text-red-600 hover:text-red-700 font-medium">Annuler</button>
+                    <button onClick={() => openCancel(res.id)} className="text-xs text-red-600 hover:text-red-700 font-medium">Annuler</button>
                   )}
                 </div>
 
@@ -167,6 +187,67 @@ export default function ReservationsPage() {
           })}
         </div>
       )}
+
+      {/* Modal de confirmation d'annulation (vérification du nom) */}
+      {cancelId &&
+        (() => {
+          const r = reservations.find((x) => x.id === cancelId);
+          return (
+            <div
+              className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center p-4"
+              onClick={() => setCancelId(null)}
+            >
+              <div
+                className="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl animate-slide-up"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <XCircle className="w-5 h-5 text-red-600" />
+                  <h3 className="font-display font-bold text-lg text-slate-800">Annuler la réservation</h3>
+                </div>
+                <p className="text-sm text-slate-600 mb-3">
+                  Pour confirmer, saisissez le <strong>nom exact</strong> utilisé lors de la
+                  réservation.
+                  {r ? (
+                    <span className="block text-slate-400 text-xs mt-1">
+                      {new Date(r.reservationDate).toLocaleDateString("fr-FR")} · {r.startPoint} →{" "}
+                      {r.endPoint}
+                    </span>
+                  ) : null}
+                </p>
+                <input
+                  autoFocus
+                  type="text"
+                  value={cancelName}
+                  onChange={(e) => setCancelName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      confirmCancel();
+                    }
+                  }}
+                  placeholder="Votre nom"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#ff3b30] mb-3"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCancelId(null)}
+                    className="flex-1 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-600 hover:bg-slate-50"
+                  >
+                    Retour
+                  </button>
+                  <button
+                    onClick={confirmCancel}
+                    disabled={!cancelName.trim()}
+                    className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 disabled:opacity-40"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
     </div>
   );
 }

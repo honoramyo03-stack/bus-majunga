@@ -295,7 +295,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-4 text-sm lg:text-[15px] leading-relaxed text-white/70 max-w-md">
               Créez votre compte en trois étapes. Réservations, trajets spéciaux, position en direct,
-              tarifs maîtrisés.
+              tarifs maîtrisés. Validation par l'administration.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/driver/register" className="inline-flex items-center gap-2 bg-[#06b6a4] text-[#0b2545] px-5 py-3 hover:bg-[#ffd60a] transition-colors">
