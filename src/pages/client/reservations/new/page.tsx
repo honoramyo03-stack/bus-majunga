@@ -5,6 +5,7 @@ import { ArrowLeft, Car, Bus, Zap, Check, Loader2, User, Phone, MapPin } from "l
 import { useFirebaseList, useFirebaseData, firebaseOps } from "@/lib/firebase-hooks";
 import type { Driver, Route } from "@/lib/types";
 import { friendlyAuthError } from "@/lib/auth-errors";
+import { byLine, tierPrice } from "@/lib/line";
 import toast from "react-hot-toast";
 
 function NewReservationContent() {
@@ -35,7 +36,7 @@ function NewReservationContent() {
   });
   const update = (f: string, v: unknown) => setForm((s) => ({ ...s, [f]: v }));
 
-  const busLines = useMemo(() => routes.filter((r) => r.type === "bus"), [routes]);
+  const busLines = useMemo(() => routes.filter((r) => r.type === "bus").sort(byLine), [routes]);
   const selectedLine = busLines.find((r) => r.id === form.selectedLineId) || null;
   const stops = selectedLine
     ? [selectedLine.startPoint, ...(selectedLine.waypoints || []), selectedLine.endPoint].filter(Boolean)
@@ -51,16 +52,24 @@ function NewReservationContent() {
   const busTier = (selectedLine?.specialTiers || [])
     .filter((t) => t.minSeats <= form.passengerCount)
     .sort((a, b) => b.minSeats - a.minSeats)[0];
-  // Tarif bus spécial selon le nombre de personnes (paliers globaux admin).
-  const specialTiersGlobal = ((settings as any)?.specialTiers || []) as { minSeats: number; price: number }[];
-  const specialTier = specialTiersGlobal
-    .filter((t) => t.minSeats <= form.passengerCount)
-    .sort((a, b) => b.minSeats - a.minSeats)[0];
+  // Tarif spécial : d'abord les paliers du chauffeur choisi, sinon les paliers
+  // globaux admin, sinon le prix spécial par défaut.
+  const chosenDriver = drivers.find((d) => d.id === form.driverId);
+  const specialTiersShown = (form.type === "special"
+    ? (chosenDriver?.specialTiers && chosenDriver.specialTiers.length
+        ? chosenDriver.specialTiers
+        : (settings as any)?.specialTiers) || []
+    : []) as { minSeats: number; price: number }[];
+  const specialPrice =
+    tierPrice(chosenDriver?.specialTiers, form.passengerCount) ??
+    tierPrice((settings as any)?.specialTiers, form.passengerCount) ??
+    (settings as any)?.specialPrice ??
+    15000;
   const pricePerPerson =
     form.type === "bus"
       ? busTier?.price ?? selectedLine?.price ?? 0
       : form.type === "special"
-      ? specialTier?.price ?? settings?.specialPrice ?? 15000
+      ? specialPrice
       : settings?.taxiPrice ?? 5000;
   const totalPrice = pricePerPerson * form.passengerCount;
 
@@ -242,13 +251,13 @@ function NewReservationContent() {
             </div>
           </div>
 
-          {form.type === "special" && ((settings as any)?.specialTiers || []).length > 0 && (
+          {form.type === "special" && specialTiersShown.length > 0 && (
             <div className="bg-[#fff7e6] border border-[#ffd60a]/50 rounded-xl p-3">
               <p className="text-[#b8860b] text-xs font-semibold mb-1.5 flex items-center gap-1">
                 <Zap className="w-3 h-3" /> Tarifs spéciaux selon le nombre de personnes
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {((settings as any).specialTiers as { minSeats: number; price: number }[]).map((t, i) => (
+                {specialTiersShown.map((t, i) => (
                   <span key={i} className="text-[11px] px-2 py-0.5 rounded bg-[#ffd60a]/30 text-[#7a5b00] font-medium tabular-nums">
                     ≥ {t.minSeats} pers → {t.price.toLocaleString()} Ar
                   </span>

@@ -33,6 +33,8 @@ import MapComponent from "@/components/MapComponent";
 import StarRating from "@/components/StarRating";
 import ReviewThread from "@/components/ReviewThread";
 import ImageUpload from "@/components/ImageUpload";
+import SpecialTiersEditor from "@/components/SpecialTiersEditor";
+import { byLine } from "@/lib/line";
 import toast from "react-hot-toast";
 
 const dfInp =
@@ -54,6 +56,7 @@ export default function AdminDashboard() {
     vehicleNumber: "", vehicleBrand: "", vehicleColor: "",
     lineNumber: "", route: "", canDoSpecial: false,
     status: "active" as "active" | "inactive" | "pending" | "suspended",
+    specialTiers: [] as { minSeats: number; price: number }[],
     imageUrl: "", vehicleImageUrl: "",
   });
   const [routeForm, setRouteForm] = useState({
@@ -231,6 +234,7 @@ export default function AdminDashboard() {
       vehicleNumber: d.vehicleNumber, vehicleBrand: d.vehicleBrand || "",
       vehicleColor: d.vehicleColor || "", lineNumber: d.lineNumber || "",
       route: d.route || "", canDoSpecial: d.canDoSpecial, status: d.status,
+      specialTiers: d.specialTiers || [],
       imageUrl: d.imageUrl || "", vehicleImageUrl: d.vehicleImageUrl || "",
     });
     setEditingDriver(d);
@@ -253,6 +257,9 @@ export default function AdminDashboard() {
         lineNumber: driverForm.lineNumber,
         route: driverForm.route,
         canDoSpecial: driverForm.canDoSpecial,
+        specialTiers: driverForm.canDoSpecial
+          ? (driverForm.specialTiers || []).filter((t) => t.minSeats > 0 && t.price >= 0).sort((a, b) => a.minSeats - b.minSeats)
+          : [],
         status: driverForm.status,
         imageUrl: driverForm.imageUrl || null,
         vehicleImageUrl: driverForm.vehicleImageUrl || null,
@@ -805,6 +812,16 @@ export default function AdminDashboard() {
                   <input type="checkbox" checked={driverForm.canDoSpecial} onChange={(e) => setDriverForm((f) => ({ ...f, canDoSpecial: e.target.checked }))} className="accent-blue-500 w-4 h-4" />
                   Trajets spéciaux
                 </label>
+                {driverForm.canDoSpecial && (
+                  <div className="mb-3">
+                    <SpecialTiersEditor
+                      value={driverForm.specialTiers}
+                      onChange={(v) => setDriverForm((f) => ({ ...f, specialTiers: v }))}
+                      theme="dark"
+                      hint="Appliqué aux réservations « bus / taxi spécial » selon le nombre de personnes."
+                    />
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <button onClick={() => setEditingDriver(null)} className="flex-1 py-2 border border-slate-600 text-slate-400 rounded-xl text-sm hover:bg-slate-700 transition-colors">Annuler</button>
                   <button onClick={saveDriver} className="flex-1 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700 transition-colors">Enregistrer</button>
@@ -1055,7 +1072,7 @@ export default function AdminDashboard() {
             )}
 
             <div className="space-y-3">
-              {routes.map((route) => (
+              {routes.slice().sort(byLine).map((route) => (
                 <div key={route.id} className="bg-slate-800 border border-slate-700 rounded-2xl p-4">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold" style={{ backgroundColor: route.color || "#3B82F6" }}>

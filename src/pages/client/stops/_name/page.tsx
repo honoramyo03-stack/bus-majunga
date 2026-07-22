@@ -7,6 +7,7 @@ import { Link, useParams } from "@/lib/router";
 import { ArrowLeft, Bus, MapPin, Clock, ChevronRight } from "lucide-react";
 import { useFirebaseList } from "@/lib/firebase-hooks";
 import type { Route } from "@/lib/types";
+import { byLine } from "@/lib/line";
 
 export default function StopPage() {
   const { name } = useParams<{ name: string }>();
@@ -20,7 +21,7 @@ export default function StopPage() {
           r.startPoint === stop ||
           r.endPoint === stop ||
           (r.waypoints || []).includes(stop)
-      ),
+      ).sort(byLine),
     [routes, stop]
   );
 

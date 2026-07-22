@@ -4,6 +4,7 @@ import { Bus, Car, Navigation, Filter, RefreshCw } from "lucide-react";
 import { useFirebaseList } from "@/lib/firebase-hooks";
 import type { Driver, Route } from "@/lib/types";
 import { MAHAJANGA_CENTER } from "@/lib/types";
+import { byLine } from "@/lib/line";
 import MapComponent from "@/components/MapComponent";
 
 export default function LiveMapPage() {
@@ -101,6 +102,7 @@ export default function LiveMapPage() {
             </button>
             {routes
               .filter((r) => r.type === "bus")
+              .sort(byLine)
               .map((route) => (
                 <button
                   key={route.id}

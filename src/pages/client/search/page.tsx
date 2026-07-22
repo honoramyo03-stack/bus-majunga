@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useFirebaseList } from "@/lib/firebase-hooks";
 import type { Driver, Route } from "@/lib/types";
+import { byLine } from "@/lib/line";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -61,7 +62,7 @@ function SearchContent() {
   };
 
   const filteredRoutes = routes.filter(matchRoute);
-  const filteredBus = filteredRoutes.filter((r) => r.type === "bus");
+  const filteredBus = filteredRoutes.filter((r) => r.type === "bus").sort(byLine);
   const filteredTaxi = activeDrivers.filter((d) => d.vehicleType === "taxi" && matchDriver(d));
   const filteredBusDrivers = activeDrivers.filter((d) => d.vehicleType === "bus" && matchDriver(d));
 

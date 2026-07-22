@@ -9,6 +9,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useFirebaseList, firebaseOps } from "@/lib/firebase-hooks";
 import { friendlyAuthError } from "@/lib/auth-errors";
 import ImageUpload from "@/components/ImageUpload";
+import SpecialTiersEditor from "@/components/SpecialTiersEditor";
+import { byLine } from "@/lib/line";
 import type { Route } from "@/lib/types";
 import RegisterSidePanel from "@/components/RegisterSidePanel";
 
@@ -31,13 +33,14 @@ export default function DriverRegisterPage() {
     fullName: "", email: "", password: "", confirmPassword: "", phone: "",
     vehicleType: "taxi" as "bus" | "taxi",
     vehicleNumber: "", vehicleColor: "", vehicleBrand: "",
-    lineNumber: "", route: "", canDoSpecial: false,
-    imageUrl: "", vehicleImageUrl: "",
+      lineNumber: "", route: "", canDoSpecial: false,
+      specialTiers: [] as { minSeats: number; price: number }[],
+      imageUrl: "", vehicleImageUrl: "",
   });
   const update = (f: string, v: unknown) => setForm((s) => ({ ...s, [f]: v }));
 
   // Lignes de bus = celles créées par l'admin (temps réel), pas une liste figée.
-  const busLines = useMemo(() => routes.filter((r) => r.type === "bus"), [routes]);
+  const busLines = useMemo(() => routes.filter((r) => r.type === "bus").sort(byLine), [routes]);
   const points = useMemo(
     () => Array.from(new Set(routes.flatMap((r) => [r.startPoint, r.endPoint, ...(r.waypoints || [])]))).filter(Boolean).sort(),
     [routes]
@@ -68,6 +71,9 @@ export default function DriverRegisterPage() {
         vehicleColor: form.vehicleColor, vehicleBrand: form.vehicleBrand,
         lineNumber: form.lineNumber, route: form.route,
         canDoSpecial: form.canDoSpecial,
+        specialTiers: form.canDoSpecial
+          ? (form.specialTiers || []).filter((t) => t.minSeats > 0 && t.price >= 0).sort((a, b) => a.minSeats - b.minSeats)
+          : [],
         imageUrl: form.imageUrl || null, vehicleImageUrl: form.vehicleImageUrl || null,
         status: "pending", rating: 0, totalRatings: 0, isOnline: false,
         createdAt: Date.now(), updatedAt: Date.now(),
@@ -234,6 +240,14 @@ export default function DriverRegisterPage() {
                     <p className="text-[12px] text-[#5a6b82] mt-1 leading-snug">J'accepte les commandes hors ligne régulière (événements, aéroport, groupes).</p>
                   </div>
                 </label>
+                {form.canDoSpecial && (
+                  <SpecialTiersEditor
+                    value={form.specialTiers}
+                    onChange={(v) => update("specialTiers", v)}
+                    theme="light"
+                    hint="Appliqué aux réservations « bus / taxi spécial » selon le nombre de personnes."
+                  />
+                )}
               </div>
             )}
 

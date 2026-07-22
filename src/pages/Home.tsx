@@ -8,6 +8,7 @@ import { useFirebaseList } from "@/lib/firebase-hooks";
 import type { Driver, Route, Reservation } from "@/lib/types";
 import { MAHAJANGA_CENTER } from "@/lib/types";
 import MapComponent from "@/components/MapComponent";
+import { byLine } from "@/lib/line";
 
 function useClock() {
   const [t, setT] = useState("");
@@ -63,7 +64,7 @@ export default function HomePage() {
 
   const active = drivers.filter((d) => d.status === "active");
   const online = active.filter((d) => d.isOnline && d.currentLocation);
-  const busRoutes = routes.filter((r) => r.type === "bus");
+  const busRoutes = routes.filter((r) => r.type === "bus").sort(byLine);
   const taxiDrivers = active.filter((d) => d.vehicleType === "taxi");
   const pendingRes = reservations.filter((r) => r.status === "pending");
 
@@ -91,7 +92,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#f4f6f8] text-[#0b2545] font-body">
       {/* Top bar */}
-      <div className="sticky top-0 z-40 bg-[#0b2545] text-[#f4f6f8] border-b border-white/10">
+      <div className="sticky top-0 z-40 shadow-lg">
+      <div className="bg-[#0b2545] text-[#f4f6f8] border-b border-white/10">
         <div className="max-w-6xl mx-auto px-5 lg:px-8 pb-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 bg-[#ff3b30] flex items-center justify-center group-hover:bg-[#ffd60a] transition-colors">
@@ -134,6 +136,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Ouverture : texte + carte live */}

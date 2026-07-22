@@ -16,6 +16,8 @@ export interface Driver {
   lineNumber?: string;
   route?: string;
   canDoSpecial: boolean;
+  // Tarifs spéciaux du chauffeur (trajets spéciaux) selon le nombre de personnes.
+  specialTiers?: { minSeats: number; price: number }[];
   imageUrl?: string;
   vehicleImageUrl?: string;
   status: DriverStatus;

@@ -248,7 +248,7 @@ export default function DriverDashboard() {
   return (
     <div className="min-h-screen bg-slate-900 pb-20">
       {/* Header */}
-      <div className="bg-slate-800 border-b border-slate-700 px-4 py-4">
+      <div className="sticky top-0 z-40 bg-slate-800 border-b border-slate-700 px-4 pb-4 pt-[calc(1rem_+_env(safe-area-inset-top))]">
         <div className="flex items-center justify-between max-w-xl mx-auto">
           <div className="flex items-center gap-3">
             {driver?.imageUrl ? (
