@@ -380,20 +380,20 @@ export default function DriverDetailPage() {
                       Arrêts
                     </p>
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-xs text-slate-600">{driverRoute.startPoint}</span>
-                      </div>
-                      {driverRoute.waypoints.map((wp, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-slate-300 rounded-full"></div>
-                          <span className="text-xs text-slate-500">{wp}</span>
-                        </div>
+                      {[
+                        { name: driverRoute.startPoint, c: "#22c55e" },
+                        ...(driverRoute.waypoints || []).map((wp) => ({ name: wp, c: "#94a3b8" })),
+                        { name: driverRoute.endPoint, c: "#ef4444" },
+                      ].map((s, i) => (
+                        <Link
+                          key={i}
+                          href={`/client/stops/${encodeURIComponent(s.name)}`}
+                          className="flex items-center gap-2 -mx-1 px-1 py-0.5 rounded hover:bg-slate-50 transition-colors group"
+                        >
+                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.c }}></div>
+                          <span className="text-xs text-slate-600 group-hover:text-[#048a7c] group-hover:underline transition-colors">{s.name}</span>
+                        </Link>
                       ))}
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                        <span className="text-xs text-slate-600">{driverRoute.endPoint}</span>
-                      </div>
                     </div>
                   </div>
                 )}

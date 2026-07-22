@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/lib/auth-context";
 import EnvCheck from "@/components/EnvCheck";
 import ServiceWorkerCleanup from "@/components/ServiceWorkerCleanup";
+import InstallPWA from "@/components/InstallPWA";
 import "@/index.css";
 
 import Home from "@/pages/Home";
@@ -21,6 +22,7 @@ import NewReservation from "@/pages/client/reservations/new/page";
 import ClientReviews from "@/pages/client/reviews/page";
 import DriverDetail from "@/pages/client/drivers/_id/page";
 import RouteDetail from "@/pages/client/routes/_id/page";
+import StopPage from "@/pages/client/stops/_name/page";
 import DriverLogin from "@/pages/driver/login/page";
 import DriverRegister from "@/pages/driver/register/page";
 import DriverDashboard from "@/pages/driver/dashboard/page";
@@ -29,6 +31,7 @@ import DriverProfile from "@/pages/driver/profile/page";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ServiceWorkerCleanup />
+    <InstallPWA />
     <AuthProvider>
       <EnvCheck>
         <BrowserRouter>
@@ -49,6 +52,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="reviews" element={<ClientReviews />} />
               <Route path="drivers/:id" element={<DriverDetail />} />
               <Route path="routes/:id" element={<RouteDetail />} />
+              <Route path="stops/:name" element={<StopPage />} />
             </Route>
 
             <Route path="/driver/login" element={<DriverLogin />} />

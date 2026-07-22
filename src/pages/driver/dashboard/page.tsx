@@ -783,7 +783,7 @@ export default function DriverDashboard() {
       </div>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 z-40">
+      <nav className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 z-40" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         <div className="max-w-xl mx-auto flex items-center justify-around px-2 py-2">
           {[
             { key: "home", label: "Accueil", icon: MapPin },

@@ -17,7 +17,7 @@ export default function ClientLayout() {
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 pb-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center">
               <Bus className="w-4 h-4 text-white" />
@@ -37,12 +37,12 @@ export default function ClientLayout() {
       </header>
 
       {/* Contenu de la route enfant */}
-      <main className="pt-16">
+      <main className="pt-[calc(4rem_+_env(safe-area-inset-top))]">
         <Outlet />
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         <div className="max-w-xl mx-auto flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
             const isActive =

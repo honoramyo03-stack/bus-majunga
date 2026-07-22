@@ -396,7 +396,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 px-4 py-3">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 px-4 pb-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
@@ -409,15 +409,24 @@ export default function AdminDashboard() {
           </button>
         </div>
         <div className="flex gap-1 mt-3 overflow-x-auto pb-1">
-          {["dashboard", "map", "drivers", "routes", "reservations", "messages"].map((tab) => (
+          {([
+            ["dashboard", "Tableau"],
+            ["map", "Carte"],
+            ["drivers", "Chauff."],
+            ["routes", "Lignes"],
+            ["reservations", "Résas"],
+            ["messages", "Msgs"],
+            ["reviews", "Avis"],
+            ["delete", "Suppr."],
+          ] as const).map(([tab, lbl]) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as typeof activeTab)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 activeTab === tab ? "bg-red-600 text-white" : "bg-slate-800 text-slate-400"
               }`}
             >
-              {tab === "dashboard" ? "Tableau" : tab}
+              {lbl}
             </button>
           ))}
         </div>

@@ -1,13 +1,9 @@
 "use strict";
-// ===========================================================================
-//  TransMahajanga — serveur Node.js + Express (SANS Next.js).
-// ===========================================================================
-//  - Sert l'API  : /api/health, /api/verify-admin-code, /api/init-demo
-//  - Sert le frontend React buildé (dossier dist/) en production, avec
-//    fallback SPA pour que le routing client (react-router) fonctionne.
-//  - En développement, ce serveur ne sert que l'API ; le frontend tourne via
-//    `vite` (port 5173) qui proxy /api vers ce serveur (port 3000).
-// ===========================================================================
+// Serveur Node + Express (API + service du build en production).
+// En dev, si le port demandé est réservé/occupé (fréquent sous Windows à cause
+// des plages exclues par Hyper-V/NAT → EACCES), on essaie automatiquement les
+// ports suivants et on écrit le port réel dans .dev-api-port (lu par le proxy
+// Vite). En production on écoute exactement le port demandé.
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -40,8 +36,7 @@ app.post("/api/verify-admin-code", (req, res) => {
   if (!expected) return res.json({ ok: true, skipped: true });
   const code = String((req.body && req.body.code) || "").trim().toUpperCase();
   if (!code) return res.status(400).json({ ok: false, error: "Code manquant." });
-  if (code !== expected.toUpperCase())
-    return res.status(403).json({ ok: false, error: "Code d'accès invalide." });
+  if (code !== expected) return res.status(403).json({ ok: false, error: "Code d'accès invalide." });
   return res.json({ ok: true });
 });
 
@@ -64,8 +59,6 @@ app.get("/api/init-demo", (_req, res) => {
 const distDir = path.join(__dirname, "..", "dist");
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir));
-  // Fallback SPA : toute requête GET qui n'est pas l'API renvoie index.html,
-  // laissant react-router résoudre la route côté client.
   app.use((req, res, next) => {
     if (req.method === "GET" && !req.path.startsWith("/api/")) {
       res.sendFile(path.join(distDir, "index.html"));
@@ -74,12 +67,42 @@ if (fs.existsSync(distDir)) {
     }
   });
 } else {
-  console.log(
-    "[server] dist/ absent → mode API uniquement. Lancez `npm run dev` (Vite) pour le frontend."
-  );
+  console.log("[server] dist/ absent → mode API uniquement. Lancez `npm run dev` (Vite) pour le frontend.");
 }
 
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => {
-  console.log(`[server] TransMahajanga (Node + Express) → http://localhost:${PORT}`);
-});
+// ----------------------- Écoute (avec repli en dev) ------------------------
+const BASE_PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
+const canFallback = process.env.npm_lifecycle_event === "dev";
+
+function tryListen(port, attempt) {
+  const server = app.listen(port, HOST, () => {
+    console.log(`[server] TransMahajanga (Node + Express) → http://localhost:${port}`);
+    try {
+      fs.writeFileSync(path.resolve(process.cwd(), ".dev-api-port"), String(port));
+    } catch {
+      /* non bloquant */
+    }
+  });
+  server.on("error", (err) => {
+    if ((err.code === "EADDRINUSE" || err.code === "EACCES") && canFallback && attempt < 40) {
+      console.warn(`[server] port ${port} indisponible (${err.code}) → essai ${port + 1}…`);
+      tryListen(port + 1, attempt + 1);
+    } else if (err.code === "EADDRINUSE") {
+      console.error(`[server] Le port ${port} est déjà utilisé. Relancez avec un port libre, ex : $env:PORT="4000"; npm run dev`);
+      process.exit(1);
+    } else if (err.code === "EACCES") {
+      console.error(
+        `[server] Permission refusée sur le port ${port} (plage réservée par Windows/Hyper-V).\n` +
+          `           → Solution 1 (recommandée, PowerShell en admin) : libérer les ports, voir README.\n` +
+          `           → Solution 2 : choisir un port libre : $env:PORT="<port>"; $env:WEB_PORT="<port>"; npm run dev`
+      );
+      process.exit(1);
+    } else {
+      console.error("[server] erreur d'écoute :", err);
+      process.exit(1);
+    }
+  });
+}
+
+tryListen(BASE_PORT, 0);

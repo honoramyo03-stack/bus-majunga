@@ -65,12 +65,12 @@ function NewReservationContent() {
   const totalPrice = pricePerPerson * form.passengerCount;
 
   // Chauffeurs éligibles : pour un bus, ceux de la ligne choisie ; sinon taxi / spécial.
+  // Bus : uniquement les chauffeurs affectés à la ligne choisie (filtrage strict).
   const availableDrivers = drivers.filter((d) => {
     if (d.status !== "active") return false;
     if (form.type === "bus") {
       if (!selectedLine) return false;
-      const onLine = drivers.filter((x) => x.status === "active" && x.vehicleType === "bus" && x.lineNumber === selectedLine.lineNumber);
-      return (onLine.length > 0 ? onLine : drivers.filter((x) => x.status === "active" && x.vehicleType === "bus")).includes(d);
+      return d.vehicleType === "bus" && d.lineNumber === selectedLine.lineNumber;
     }
     if (form.type === "special") return d.canDoSpecial;
     return d.vehicleType === "taxi";
